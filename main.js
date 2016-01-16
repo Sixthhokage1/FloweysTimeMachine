@@ -70,6 +70,7 @@ var items = [
 var cellOpts = {
     "0": "Empty",
     "201": "Say Hello",
+    "202": "Puzzle Help",
     "203": "About Yourself",
     "204": "Call Her \"Mom\"",
     "205": "Flirt",
@@ -369,17 +370,26 @@ var doggoStates = {
 
 var dogamyDogaressaStates = {
     "0": "Initial state",
-    "1": "Killed"
+    "1": "Killed",
+    "2": "Played fetch (?)"
 };
 
 var greaterDogStates = {
     "0": "Initial state",
-    "1": "Killed"
+    "1": "Killed",
+    "3": "Unknown"
 };
 
 var papyrusStates = {
     "0": "Initial state",
     "1": "Killed"
+};
+
+var plotValues = {
+    "2": "Didn't fight Papyrus",
+    "101": "Fought Papyrus",
+    "119": "Unknown",
+    "199": "Unknown"
 };
 
 var trainingDummyStates = {
@@ -614,7 +624,8 @@ function updateSelection(id, values, index, list) {
     if (list[value]) {
         document.getElementById(id).value = value;
     } else {
-        window.alert("Unknown value '" + value + "' for line " + (index + 1) + ".\n" +
+        window.alert("Unknown value '" + value + "' for line " + (index + 1) +
+                     " (" + id + ").\n" +
                      "If you think this is a valid value, report an issue at " +
                      "https://github.com/crumblingstatue/FloweysTimeMachine/issues");
     }
@@ -663,6 +674,7 @@ function updateSaveDataForm(values) {
     } else {
         document.getElementById("sav-exitedtruelab").checked = false;
     }
+    updateSelection("sav-plotvalue", values, 542, plotValues);
     if (parseInt(values[545].trim()) === 1) {
         document.getElementById("sav-havecell").checked = true;
     } else {
@@ -726,6 +738,7 @@ function updateSaveValuesFromForm(values) {
     } else {
         values[523] = "0";
     }
+    values[542] = document.getElementById("sav-plotvalue").value;
     if (document.getElementById("sav-havecell").checked) {
         values[545] = "1";
     } else {
@@ -802,6 +815,7 @@ function start() {
     loadSelectFromObj("sav-dogamydogaressastate", dogamyDogaressaStates);
     loadSelectFromObj("sav-greaterdogstate", greaterDogStates);
     loadSelectFromObj("sav-papyrusstate", papyrusStates);
+    loadSelectFromObj("sav-plotvalue", plotValues);
     loadSelectFromObj("sav-trainingdummystate", trainingDummyStates);
     loadSelectFromObj("sav-shyrenstate", shyrenStates);
     loadSelectFromObj("sav-maddummystate", madDummyStates);
