@@ -350,11 +350,22 @@ var rooms = {
     "331": "Asriel room"
 };
 
+var floweyStates = {
+    "0": "None (Initial state)",
+    "1": "Light blue (Initiated fight)",
+    "2": "Orange",
+    "3": "Blue",
+    "4": "Purple",
+    "5": "Green",
+    "6": "Yellow",
+    "7": "None (Finished fight)",
+};
+
 var torielStates = {
     "0": "Initial state",
     "3": "Unknown",
     "4": "Killed",
-    "5": "Unknown"
+    "5": "Spared"
 };
 
 var comedianStates = {
@@ -365,19 +376,21 @@ var comedianStates = {
 
 var doggoStates = {
     "0": "Initial state",
-    "1": "Killed"
+    "1": "Killed",
+    "2": "Played fetch (Spared)"
 };
 
 var dogamyDogaressaStates = {
     "0": "Initial state",
     "1": "Killed",
-    "2": "Played fetch (?)"
+    "2": "Played fetch (Spared)"
 };
 
 var greaterDogStates = {
     "0": "Initial state",
     "1": "Killed",
-    "3": "Unknown"
+    "2": "Played fetch (Spared)",
+    "3": "Ignored"
 };
 
 var papyrusStates = {
@@ -389,7 +402,9 @@ var plotValues = {
     "2": "Didn't fight Papyrus",
     "101": "Fought Papyrus",
     "119": "Unknown",
-    "199": "Unknown"
+    "164": "Hotlands genocide",
+    "199": "Unknown",
+    "999": "Pacifist epilogue"
 };
 
 var trainingDummyStates = {
@@ -566,17 +581,27 @@ function updatePersistentDataForm(iniobj) {
             }
         }
         if (iniobj.FFFFF.P) {
-            if (parseInt(iniobj.FFFFF.P.trim()) === 1) {
-                document.getElementById("ini-omega-flowey-battle-init").checked = true;
-            } else {
-                document.getElementById("ini-omega-flowey-battle-init").checked = false;
-            }
+            document.getElementById("ini-omega-flowey-soul").value = parseInt(iniobj.FFFFF.P.trim());
         }
         if (iniobj.FFFFF.D) {
             document.getElementById("ini-omega-flowey-deaths").value = parseInt(iniobj.FFFFF.D.trim());
         }
     } else {
         document.getElementById("ini-omega-flowey-trapped").checked = false;
+    }
+    if (iniobj.reset) {
+        if (iniobj.reset.s_key) {
+            if (parseInt(iniobj.reset.s_key.trim()) === 1) {
+                document.getElementById("ini-dodged-all-special-thanks").checked = true;
+            } else {
+                document.getElementById("ini-dodged-all-special-thanks").checked = false;
+            }
+        }
+    } else {
+        document.getElementById("ini-dodged-all-special-thanks").checked = false;
+    }
+    if (iniobj.fun) {
+        document.getElementById("ini-fun").value = parseInt(iniobj.fun.trim());
     }
 }
 
@@ -597,15 +622,12 @@ function updateIniFromForm(ini) {
             ini.FFFFF.F = "0";
         }
     }
-    if (document.getElementById("ini-omega-flowey-battle-init").checked) {
+    var upcomingSoul = parseInt(document.getElementById("ini-omega-flowey-soul").value);
+    if (upcomingSoul) {
         if (!ini.FFFFF) {
             ini.FFFFF = {};
         }
-        ini.FFFFF.P = "1";
-    } else {
-        if (ini.FFFFF) {
-            ini.FFFFF.P = "0";
-        }
+        ini.FFFFF.P = upcomingSoul;
     }
     var timesDied = parseInt(document.getElementById("ini-omega-flowey-deaths").value);
     if (timesDied) {
@@ -616,19 +638,30 @@ function updateIniFromForm(ini) {
             ini.FFFFF.D = timesDied;
         }
     }
+    if (document.getElementById("ini-dodged-all-special-thanks").checked) {
+        if (!ini.reset) {
+            ini.reset = {};
+        }
+        ini.reset.s_key = "1";
+    } else {
+        if (ini.reset) {
+            ini.reset.s_key = "0";
+        }
+    }
+    var fun = parseInt(document.getElementById("ini-fun").value);
+    if (fun) {
+        ini.General.fun = fun;
+    }
 }
 
 function updateSelection(id, values, index, list) {
     "use strict";
     var value = parseInt(values[index].trim());
-    if (list[value]) {
-        document.getElementById(id).value = value;
-    } else {
-        window.alert("Unknown value '" + value + "' for line " + (index + 1) +
-                     " (" + id + ").\n" +
-                     "If you think this is a valid value, report an issue at " +
-                     "https://github.com/crumblingstatue/FloweysTimeMachine/issues");
+    if (!list[value]) {
+        list[value] = "Unrecognized (" + value + ")";
+        loadSelectFromObj(id, list);
     }
+    document.getElementById(id).value = value;
 }
 
 // Update the save data form from an array of values.
@@ -659,7 +692,7 @@ function updateSaveDataForm(values) {
     updateSelection("sav-papyrusstate", values, 97, papyrusStates);
     updateSelection("sav-shyrenstate", values, 111, shyrenStates);
     document.getElementById("sav-unkkills").value = values[231];
-    document.getElementById("sav-dungeonkills").value = values[232];
+    document.getElementById("sav-ruinskills").value = values[232];
     document.getElementById("sav-snowdinkills").value = values[233];
     document.getElementById("sav-waterfallkills").value = values[234];
     document.getElementById("sav-hotlandkills").value = values[235];
@@ -674,6 +707,11 @@ function updateSaveDataForm(values) {
     } else {
         document.getElementById("sav-exitedtruelab").checked = false;
     }
+    if (parseInt(values[37].trim()) === 1) {
+        document.getElementById("sav-defeatedasriel").checked = true;
+    } else {
+        document.getElementById("sav-defeatedasriel").checked = false;
+    }
     updateSelection("sav-plotvalue", values, 542, plotValues);
     if (parseInt(values[545].trim()) === 1) {
         document.getElementById("sav-havecell").checked = true;
@@ -681,6 +719,7 @@ function updateSaveDataForm(values) {
         document.getElementById("sav-havecell").checked = false;
     }
     document.getElementById("sav-location").value = parseInt(values[547].trim());
+    document.getElementById("sav-fun").value = parseInt(values[35].trim());
 }
 
 // Update an array of values from the save data form.
@@ -723,7 +762,7 @@ function updateSaveValuesFromForm(values) {
     values[97] = document.getElementById("sav-papyrusstate").value;
     values[111] = document.getElementById("sav-shyrenstate").value;
     values[231] = document.getElementById("sav-unkkills").value;
-    values[232] = document.getElementById("sav-dungeonkills").value;
+    values[232] = document.getElementById("sav-ruinskills").value;
     values[233] = document.getElementById("sav-snowdinkills").value;
     values[234] = document.getElementById("sav-waterfallkills").value;
     values[235] = document.getElementById("sav-hotlandkills").value;
@@ -738,6 +777,11 @@ function updateSaveValuesFromForm(values) {
     } else {
         values[523] = "0";
     }
+    if (document.getElementById("sav-defeatedasriel").checked) {
+        values[37] = "1";
+    } else {
+        values[37] = "0";
+    }
     values[542] = document.getElementById("sav-plotvalue").value;
     if (document.getElementById("sav-havecell").checked) {
         values[545] = "1";
@@ -745,6 +789,7 @@ function updateSaveValuesFromForm(values) {
         values[545] = "0";
     }
     values[547] = document.getElementById("sav-location").value;
+    values[35] = document.getElementById("sav-fun").value;
 }
 
 function saveIniToFile(ini) {
@@ -809,6 +854,7 @@ function start() {
     }
     loadSelectFromObj("sav-location", rooms);
     loadSelectFromObj("ini-location", rooms);
+    loadSelectFromObj("ini-omega-flowey-soul", floweyStates);
     loadSelectFromObj("sav-torielstate", torielStates);
     loadSelectFromObj("sav-comedianstate", comedianStates);
     loadSelectFromObj("sav-doggostate", doggoStates);
@@ -827,7 +873,7 @@ function start() {
     insert_inv_lists();
     insert_cell_lists();
     loadPresetSelect();
-    loadPreset("Dungeon Start");
+    loadPreset("Ruins Start");
     var iniFile, saveFile;
     var iniInput = document.getElementById("ini-file");
     iniInput.addEventListener("change", function(evt) {

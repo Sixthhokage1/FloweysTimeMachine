@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html lang="en">
+<html lang="en" manifest="manifest.appcache">
     <head>
         <meta charset="utf-8" />
         <meta name="description" content="A save editor for Undertale." />
@@ -8,12 +8,13 @@
         <title>Flowey's Time Machine</title>
         <script src="lib/FileSaver.min.js"></script>
         <script src="presets/presets.js"></script>
-        <script src="presets/dungeon-start.js"></script>
+        <script src="presets/ruins-start.js"></script>
         <script src="presets/sans-battle.js"></script>
         <script src="presets/Undyne%20The%20Undying.js"></script>
         <script src="presets/Asgore%20(normal).js"></script>
         <script src="presets/Asgore%20(true%20ending).js"></script>
         <script src="presets/Omega%20Flowey.js"></script>
+        <script src="presets/True%20Pacifist%20Ending.js"></script>
         <script src="main.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
@@ -61,8 +62,13 @@
             <fieldset>
                 <legend> Omega Flowey </legend>
                 <label> Trapped in Flowey's World </label> <input type="checkbox" id="ini-omega-flowey-trapped" />
-                <label> Initiated battle </label> <input type="checkbox" id="ini-omega-flowey-battle-init" />
+                <label> Upcoming soul fight: </label> <select id="ini-omega-flowey-soul"></select>
                 <label> How many times you died </label> <input type="text" id="ini-omega-flowey-deaths" />
+            </fieldset>
+            <fieldset>
+                <legend> Other </legend>
+                <label> Dodged all of the special thanks </label> <input type="checkbox" id="ini-dodged-all-special-thanks" />
+                <label> "Fun" value </label> <input type="text" id="ini-fun" />
             </fieldset>
         </form>
         <h2> SAVE Data </h2>
@@ -130,8 +136,8 @@
             </div>
             <div>
                 <fieldset>
-                    <legend> Dungeon </legend>
-                    <label> Kill count </label> <input type="text" id="sav-dungeonkills" />
+                    <legend> Ruins </legend>
+                    <label> Kill count </label> <input type="text" id="sav-ruinskills" />
                     <label>Training Dummy State</label> <select id="sav-trainingdummystate"> </select>
                     <label>Toriel State</label> <select id="sav-torielstate"> </select>
                 </fieldset>
@@ -159,13 +165,14 @@
                     <label>Muffet State</label> <select id="sav-muffetstate"> </select>
                     <label>Mettaton State</label> <select id="sav-mettatonstate"> </select>
                 </fieldset>
-                <fieldset>
-                    <legend> True Lab </legend>
-                    <label> Exited (can get true ending) </label> <input id="sav-exitedtruelab" type="checkbox" />
-                </fieldset>
+            </div>
+            <div>
                 <fieldset>
                   <legend> Other </legend>
-                  <label>"Plot" value</label> <select id="sav-plotvalue"> </select>
+                  <label> True lab exited (can get true ending) </label> <input id="sav-exitedtruelab" type="checkbox" />
+                  <label> Defeated Asriel (true pacifist finished) </label> <input id="sav-defeatedasriel" type="checkbox" />
+                  <label> "Plot" value </label> <select id="sav-plotvalue"> </select>
+                  <label> "Fun" value </label> <input type="text" id="sav-fun" />
                 </fieldset>
             </div>
         </form>
